@@ -32,6 +32,10 @@ dependencies = ["xrdroot @ git+https://github.com/rob-c/xrdroot@main"]
 plot = ["matplotlib>=3.5"]
 dev = [
   "complexipy>=6,<7",
+  # One test fixture is a zstd-compressed ROOT file, which the reader can only
+  # open where the interpreter carries `compression.zstd` (3.14 and later) or
+  # this is installed.
+  "zstandard>=0.21",
   "mypy>=1.10",
   "pytest>=8",
   "pytest-cov",
@@ -52,6 +56,10 @@ packages = ["src/xrdml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# ``tests/test_maintainability.py`` imports ``tools.maintainability``, and a
+# bare ``pytest`` - which is what CI runs - does not put the working directory
+# on the path the way ``python -m pytest`` does.
+pythonpath = ["."]
 timeout = 120
 filterwarnings = ["error::ResourceWarning"]
 
