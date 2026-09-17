@@ -15,12 +15,12 @@ import time
 import tracemalloc
 
 import torch
+import xrd
 from torch import nn
 from torch.utils.data import DataLoader
+from xrdroot import open_root
 
-import xrd
-from xrd.root import open_root
-from xrd.root.ml import mixed
+from xrdml.tensors import mixed
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "root://127.0.0.1:21094//mnist.root"
 STEP, BATCH, EPOCHS = 512, 256, 5

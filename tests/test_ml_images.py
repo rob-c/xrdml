@@ -1,4 +1,4 @@
-"""The public, dependency-light 2D image API in :mod:`xrd.ml`."""
+"""The public, dependency-light 2D image API in :mod:`xrdml`."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from xrdroot import UnsupportedFeatureError, create
 
-import xrd.ml as ml
-from xrd.root import UnsupportedFeatureError, create
+import xrdml as ml
 
 
 @pytest.fixture

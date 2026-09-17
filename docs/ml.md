@@ -3,9 +3,9 @@
 You have a URL and you want to train something on it. Three lines:
 
 ```python
-import xrd.ml
+import xrdml
 
-data = xrd.ml.load("root://eos.example.org//store/mnist.root")
+data = xrdml.load("root://eos.example.org//store/mnist.root")
 
 for images, labels in data.train.batches(256):
     loss = criterion(model(images), labels)
@@ -14,9 +14,9 @@ for images, labels in data.train.batches(256):
 Nothing was downloaded. Every minibatch is a read of one basket out of the
 file wherever it lives, so a file larger than the machine trains the same way
 a small one does, and the URL can be a storage element, an HTTPS server, an S3
-bucket or a path — see [Files and paths](files.md) for what a URL may be.
+bucket or a path — see [the client's files and paths](https://github.com/rob-c/xrd/blob/main/docs/files.md) for what a URL may be.
 
-`xrd.ml` is the friendly face of [`xrd.root.ml`](root.md#into-pytorch-and-tensorflow),
+`xrdml` is the friendly face of [`xrdml.tensors`](tensors.md),
 which is where the tensors are actually made. Everything on this page can be
 done a layer down with more control and more typing; nothing here prevents
 going there later.
@@ -24,7 +24,7 @@ going there later.
 ## What it works out for itself
 
 ```pycon
->>> data = xrd.ml.load("datasets/mnist.root")
+>>> data = xrdml.load("datasets/mnist.root")
 >>> print(data)
 datasets/mnist.root: 70,000 rows, 10 classes
   inputs   image: 784 x uint8, scaled to 0-1
@@ -35,7 +35,7 @@ datasets/mnist.root: 70,000 rows, 10 classes
 Three things, each of which can be said outright instead:
 
 **Which rows are which.** Trees named `train_0` … `train_9` and `test_0` …
-`test_9` — which is what [`xrd.root.datasets`](root.md#the-datasets-everyone-teaches-with)
+`test_9` — which is what [`xrddatasets`](https://github.com/rob-c/xrddatasets)
 writes — make a `train` split and a `test` split of ten classes apiece. A file
 of one tree has one split, called `all`. `train`, `validation`, `valid`,
 `val`, `dev`, `eval` and `test` are the prefixes recognised.
@@ -52,7 +52,7 @@ of strings or of objects are not numbers and are left out.
 When a file's names are its own, say so:
 
 ```python
-data = xrd.ml.load(url, inputs=["pt", "eta", "phi"], answer="is_signal")
+data = xrdml.load(url, inputs=["pt", "eta", "phi"], answer="is_signal")
 ```
 
 ## Looking before training
@@ -96,9 +96,9 @@ projections. One entry can be inspected without loading a training framework
 or transferring the rest of a hosted file:
 
 ```python
-import xrd.ml
+import xrdml
 
-image = xrd.ml.load_image_2d(
+image = xrdml.load_image_2d(
     "jarvis_dft2d_formation_energy",
     tree="train",
     entry=0,
@@ -130,7 +130,7 @@ single rectangular float image is explicit about its geometry and has no
 named plane:
 
 ```python
-image = xrd.ml.load_image_2d(
+image = xrdml.load_image_2d(
     url,
     tree="validation",
     entry=-1,                 # Python-style indexing from the end
@@ -146,7 +146,7 @@ A square single-image branch can omit `shape`; for a layered branch, provide
 the layer names and select by name or integer:
 
 ```python
-image = xrd.ml.load_image_2d(
+image = xrdml.load_image_2d(
     url,
     branch="detector_views",
     shape=(128, 128),
@@ -160,7 +160,7 @@ the raw physical plane and `normalized_image` is the exact min-max input stored
 by the converter:
 
 ```python
-image = xrd.ml.load_image_2d(
+image = xrdml.load_image_2d(
     "well_turbulent_radiative_layer_2D_next_state",
     tree="train",
     branch="image",
@@ -302,7 +302,7 @@ row and the number of trees:
 ```
 
 Halve it and the memory halves and the shuffling narrows; raise it and the
-reads get longer and the shuffle wider. `xrd.ml.load(url, step=2048)` says it
+reads get longer and the shuffle wider. `xrdml.load(url, step=2048)` says it
 outright. [Training playbooks](playbooks.md) measures all of this on real
 files rather than asserting it.
 
@@ -312,9 +312,9 @@ files rather than asserting it.
 import torch
 from torch import nn
 
-import xrd.ml
+import xrdml
 
-with xrd.ml.load("root://127.0.0.1:21094//mnist.root") as data:
+with xrdml.load("root://127.0.0.1:21094//mnist.root") as data:
     print(data)
     model = nn.Sequential(nn.Linear(784, 128), nn.ReLU(), nn.Linear(128, 10))
     optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -339,7 +339,7 @@ forgets is closed for it when the dataset is collected.
 
 ## Files to train on
 
-`xrd.root.datasets` registers 1,424 published sets below the default source
+`xrdroot.datasets` registers 1,424 published sets below the default source
 ceiling and writes the 1,422 whose terms permit a public mirror into this
 shape — MNIST,
 CIFAR-10 and -100, Fashion-MNIST, and a long tail of tabular and audio sets,
@@ -347,7 +347,7 @@ plus 100 visualized JARVIS-DFT 2D/3D materials-property tasks, 100 broad
 The Well visual-field tasks (50 below the default source ceiling), and 500
 explicitly licensed Hub Parquet repositories, each with what it is
 licensed under. The two CIFAR archives are the private-build exceptions. See
-[the datasets everyone teaches with](root.md#the-datasets-everyone-teaches-with),
+[the datasets everyone teaches with](https://github.com/rob-c/xrddatasets),
 and [Training playbooks](playbooks.md) for making one and serving it on a port
 you can bind with no daemon and no login. Eight more registered UCI converters
 have complete source payloads at or above 2 GB; another 50 The Well tasks share
@@ -358,11 +358,11 @@ explicitly with `xrd-datasets build ... --allow-oversize` or Python's
 ## Loading by name
 
 ```python
-data = xrd.ml.load("mnist")
+data = xrdml.load("mnist")
 ```
 
 A bare name — no scheme, no slash, no file of that name here — is looked up
-in the catalogue: the `index.json` a [datasets site](datasets-site.md)
+in the catalogue: the `index.json` a [datasets site](https://github.com/rob-c/xrddatasets)
 serves, which maps names to files. Anything that could be a place is treated
 as one, so a real path or URL is never shadowed by a catalogue entry. The
 default catalogue is `http://ai.edi.scotgrid.ac.uk`. Override it globally
@@ -377,11 +377,11 @@ When one logical dataset is published as several physical ROOT files, choose
 the publisher split recorded in the catalogue:
 
 ```python
-data = xrd.ml.load("hepmass", split="train_1000")
+data = xrdml.load("hepmass", split="train_1000")
 ```
 
 Omitting `split=` names every available shard in the error instead of silently
-choosing an incomplete view. `xrd.ml.download` accepts the same argument.
+choosing an incomplete view. `xrdml.download` accepts the same argument.
 
 ## Keeping a local copy
 
@@ -393,11 +393,11 @@ hyperparameter sweep, an epoch loop on a small set — or when the link is worse
 than the disk.
 
 ```python
-data = xrd.ml.load("mnist", cache=True)  # pull once, then read locally
+data = xrdml.load("mnist", cache=True)  # pull once, then read locally
 ```
 
 ```python
-path = xrd.ml.download("mnist")  # or take the file itself
+path = xrdml.download("mnist")  # or take the file itself
 ```
 
 `download` returns the path the file now lives at, under `cache_dir`
@@ -416,7 +416,7 @@ whatever is there.
 
 ## When to go a layer down
 
-[`xrd.root.ml`](root.md#into-pytorch-and-tensorflow) is the expert layer, and
+[`xrdml.tensors`](tensors.md) is the expert layer, and
 what it offers that this does not:
 
 * TensorFlow, through `tf_dataset` — this page is PyTorch only;
@@ -428,4 +428,4 @@ what it offers that this does not:
   tree in any file rather than a split worked out from names.
 
 Nothing is lost by starting here: `data.train.dataset()` is one of its objects
-already, and `xrd.root.open_root` opens the same file for both.
+already, and `xrdroot.open_root` opens the same file for both.

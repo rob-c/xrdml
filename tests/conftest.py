@@ -5,7 +5,6 @@ from __future__ import annotations
 import struct
 
 import pytest
-
 from xrd.config import Config
 from xrd.proto import constants as c
 

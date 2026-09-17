@@ -1,7 +1,7 @@
 # Training playbooks
 
 Five programs live in `examples/`. Four learn from a `root://` URL without
-holding the file: MNIST twice — once in the short words of [`xrd.ml`](ml.md)
+holding the file: MNIST twice — once in the short words of [`xrdml`](ml.md)
 and once written out longhand — an autoencoder that squeezes CIFAR-10
 photographs through sixty-four numbers, and a small convolutional net on
 Fashion-MNIST. The fifth inspects one JARVIS crystal entry as raw and
@@ -19,7 +19,7 @@ claimed.
 Once, and then they sit there:
 
 ```python
-from xrd.root import create, datasets
+from xrdroot import create, datasets
 
 for name in ("mnist", "fashion_mnist", "cifar10"):
     with create(f"datasets/{name}.root") as out:
@@ -30,7 +30,7 @@ for name in ("mnist", "fashion_mnist", "cifar10"):
 Each becomes one file of twenty trees: `train_0` … `train_9` and `test_0` …
 `test_9` for MNIST, and the class names themselves — `train_airplane`,
 `train_cat` — for the other two. See
-[the datasets everyone teaches with](root.md#the-datasets-everyone-teaches-with)
+[the datasets everyone teaches with](https://github.com/rob-c/xrddatasets)
 for the 1,422 sets a public mirror can write, and what each of
 them is licensed under.
 
@@ -49,7 +49,7 @@ serving 1 files on root://127.0.0.1:21094/ with no login
 
 That server authorises everyone and reads its files into memory, which is fine
 for a demonstration on loopback and wrong for anything else; see
-[Testing](testing.md#sharing-a-directory-over-root) before pointing it at a
+[the client's testing server](https://github.com/rob-c/xrd/blob/main/docs/testing.md#sharing-a-directory-over-root) before pointing it at a
 network.
 
 ## Inspecting a JARVIS crystal projection
@@ -76,7 +76,7 @@ for rectangular branches, custom layers and direct NumPy/PyTorch conversion.
 ## MNIST, in the words a beginner has
 
 `examples/mnist_easy.py` — the same classifier as the next section, written
-against [`xrd.ml`](ml.md). There are no baskets, offsets or dtypes in it: a
+against [`xrdml`](ml.md). There are no baskets, offsets or dtypes in it: a
 URL goes in and minibatches of `(images, labels)` come out, already scaled and
 already typed for the loss function.
 

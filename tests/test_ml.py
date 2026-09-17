@@ -1,13 +1,13 @@
 """A file of rows, in the shape a training loop wants it.
 
-:mod:`xrd.ml` is the layer a physicist meets first: a URL in, minibatches
+:mod:`xrdml` is the layer a physicist meets first: a URL in, minibatches
 out, and nothing about baskets, offsets or tensor dtypes in between. What is
 checked here is that everything it works out for itself - which trees are the
 training rows, which column is the answer, how much to hold at once - it works
 out the way the file says, and that it says so plainly when it cannot.
 
 PyTorch is not installed in this suite, so the batching tests stand a small
-module in for it, as :mod:`tests.test_root_ml` does; the tests above them use
+module in for it, as :mod:`tests.test_tensors` does; the tests above them use
 no framework at all, which is the point of that half of the API.
 """
 
@@ -20,10 +20,10 @@ import sys
 import types
 
 import pytest
+from xrdroot import Histogram, create, open_root
 
-import xrd
-from xrd.ml import Column, Dataset, _pool, download, load
-from xrd.root import Histogram, create, open_root
+import xrdml
+from xrdml import Column, Dataset, _pool, download, load
 
 DATA = pathlib.Path(__file__).parent / "data"
 
@@ -41,7 +41,7 @@ def _write(path, columns, trees):
 
 @pytest.fixture
 def digits(tmp_path):
-    """Pictures separated by class, as :mod:`xrd.root.datasets` writes them."""
+    """Pictures separated by class, as :mod:`xrdroot.datasets` writes them."""
     columns = {"image": ("B", 4), "label": "i", "index": "i"}
     trees = {
         f"{split}_{digit}": [{"image": PIXELS, "label": digit, "index": n} for n in range(rows)]
@@ -511,12 +511,6 @@ def test_a_dataset_nobody_closed_closes_itself(digits):
         handle["train_0"].arrays(["label"])
 
 
-def test_the_module_is_one_attribute_away(monkeypatch):
-    """``xrd.ml`` resolves lazily, so nobody pays for the ROOT reader."""
-    monkeypatch.delattr(xrd, "ml", raising=False)
-    assert xrd.ml is sys.modules["xrd.ml"]
-
-
 # ---------------------------------------------------------------------------
 # Loading by name
 # ---------------------------------------------------------------------------
@@ -531,7 +525,7 @@ def catalogue(digits, tmp_path):
 
 
 def test_a_bare_name_is_found_in_the_catalogue(catalogue):
-    with load("digits", config=xrd.Config(catalogue=catalogue)) as data:
+    with load("digits", config=xrdml.Config(catalogue=catalogue)) as data:
         assert len(data) == 18
 
 
@@ -549,7 +543,7 @@ def test_a_catalogue_file_shard_must_be_selected_by_publisher_split(digits, tmp_
         ],
     }
     (tmp_path / "index.json").write_text(json.dumps(index))
-    config = xrd.Config(catalogue=str(tmp_path))
+    config = xrdml.Config(catalogue=str(tmp_path))
     with pytest.raises(ValueError, match="pass split="):
         load("digits_sharded", config=config)
     with load("digits_sharded", split="train", config=config) as data:
@@ -568,7 +562,7 @@ def test_a_catalogue_is_read_over_http(digits):
     index = json.dumps({"format": 1, "datasets": [{"name": "digits", "file": "digits.root"}]})
     files = {"/d/index.json": index.encode(), "/d/digits.root": pathlib.Path(digits).read_bytes()}
     with FakeDAVServer(files=files) as server:
-        with load("digits", config=xrd.Config(catalogue=f"{server.url}d")) as data:
+        with load("digits", config=xrdml.Config(catalogue=f"{server.url}d")) as data:
             assert len(data) == 18
 
 
@@ -580,7 +574,7 @@ def test_a_name_with_catalogue_lookup_disabled_says_how_to_enable_it(monkeypatch
 
 def test_a_name_the_catalogue_has_not_got_names_what_it_has(catalogue):
     with pytest.raises(ValueError, match=r"has digits, and no 'mnist'"):
-        load("mnist", config=xrd.Config(catalogue=catalogue))
+        load("mnist", config=xrdml.Config(catalogue=catalogue))
 
 
 def test_a_file_that_exists_is_never_shadowed_by_the_catalogue(digits, monkeypatch):
@@ -618,7 +612,7 @@ def served(digits):
 
 
 def test_a_dataset_is_pulled_to_the_cache_and_named_after_itself(served, tmp_path):
-    where = download("digits", into=tmp_path, config=xrd.Config(catalogue=served.url))
+    where = download("digits", into=tmp_path, config=xrdml.Config(catalogue=served.url))
     assert where.parent == tmp_path
     assert where.name.endswith("-digits.root")
     assert where.read_bytes() == served.raw
@@ -626,7 +620,7 @@ def test_a_dataset_is_pulled_to_the_cache_and_named_after_itself(served, tmp_pat
 
 def test_a_dataset_pulled_once_is_read_without_the_server(served, tmp_path):
     """The point of the cache: the second run does not need the network at all."""
-    config = xrd.Config(catalogue=served.url)
+    config = xrdml.Config(catalogue=served.url)
     first = download("digits", into=tmp_path, config=config)
     with load(first) as data:
         assert len(data) == 18
@@ -636,7 +630,7 @@ def test_a_dataset_pulled_once_is_read_without_the_server(served, tmp_path):
 
 
 def test_the_cache_directory_is_where_the_config_says(served, tmp_path):
-    config = xrd.Config(catalogue=served.url, cache_dir=str(tmp_path / "c"))
+    config = xrdml.Config(catalogue=served.url, cache_dir=str(tmp_path / "c"))
     where = download("digits", config=config)
     assert where.parent == tmp_path / "c" / "datasets"
 
@@ -649,7 +643,7 @@ def test_a_file_already_here_is_its_own_cache(digits, tmp_path):
 
 
 def test_two_catalogues_offering_one_name_do_not_land_on_each_other():
-    from xrd.ml import _cache_name
+    from xrdml import _cache_name
 
     a = _cache_name("https://one.example.org/mnist.root")
     b = _cache_name("https://two.example.org/mnist.root")
@@ -657,13 +651,13 @@ def test_two_catalogues_offering_one_name_do_not_land_on_each_other():
 
 
 def test_a_source_with_no_file_name_left_in_it_still_names_a_file():
-    from xrd.ml import _cache_name
+    from xrdml import _cache_name
 
     assert _cache_name("/").endswith("-dataset.root")
 
 
 def test_a_second_pull_of_what_is_there_transfers_nothing(served, tmp_path, monkeypatch):
-    config = xrd.Config(catalogue=served.url)
+    config = xrdml.Config(catalogue=served.url)
     download("digits", into=tmp_path, config=config)
 
     def refuse(*args, **options):
@@ -676,7 +670,7 @@ def test_a_second_pull_of_what_is_there_transfers_nothing(served, tmp_path, monk
 
 
 def test_refresh_pulls_over_what_is_already_there(served, tmp_path):
-    config = xrd.Config(catalogue=served.url)
+    config = xrdml.Config(catalogue=served.url)
     where = download("digits", into=tmp_path, config=config)
     where.write_bytes(b"not the dataset any more")
     assert download("digits", into=tmp_path, config=config, refresh=True).read_bytes() == served.raw
@@ -685,16 +679,16 @@ def test_refresh_pulls_over_what_is_already_there(served, tmp_path):
 def test_a_copy_of_the_wrong_length_is_refused_and_not_kept(served, tmp_path, monkeypatch):
     """The catalogue said how big it is, so a short file is a failed pull."""
     monkeypatch.setattr(
-        "xrd.ml._agrees",
+        "xrdml._agrees",
         lambda part, entry, source: (_ for _ in ()).throw(ValueError("truncated")),
     )
     with pytest.raises(ValueError, match="truncated"):
-        download("digits", into=tmp_path, config=xrd.Config(catalogue=served.url))
+        download("digits", into=tmp_path, config=xrdml.Config(catalogue=served.url))
     assert list(tmp_path.glob("*.part")) == []
 
 
 def test_a_length_the_catalogue_disagrees_with_is_named(served, tmp_path):
-    from xrd.ml import _agrees
+    from xrdml import _agrees
 
     part = tmp_path / "short.root"
     part.write_bytes(b"nowhere near")
@@ -703,7 +697,7 @@ def test_a_length_the_catalogue_disagrees_with_is_named(served, tmp_path):
 
 
 def test_a_checksum_the_catalogue_disagrees_with_is_named(served, tmp_path):
-    from xrd.ml import _agrees
+    from xrdml import _agrees
 
     part = tmp_path / "wrong.root"
     part.write_bytes(b"x" * served.entry["bytes"])
@@ -713,7 +707,7 @@ def test_a_checksum_the_catalogue_disagrees_with_is_named(served, tmp_path):
 
 def test_a_url_nobody_catalogued_is_taken_as_it_arrives(served, tmp_path):
     """With no entry there is nothing to hold the bytes to but the copy itself."""
-    from xrd.ml import _agrees
+    from xrdml import _agrees
 
     part = tmp_path / "loose.root"
     part.write_bytes(b"whatever this is")
@@ -721,14 +715,14 @@ def test_a_url_nobody_catalogued_is_taken_as_it_arrives(served, tmp_path):
 
 
 def test_load_can_do_the_pull_itself(served, tmp_path):
-    config = xrd.Config(catalogue=served.url, cache_dir=str(tmp_path))
+    config = xrdml.Config(catalogue=served.url, cache_dir=str(tmp_path))
     with load("digits", cache=True, config=config) as data:
         assert len(data) == 18
     assert (tmp_path / "datasets").is_dir()
 
 
 def test_load_takes_a_directory_to_cache_into(served, tmp_path):
-    config = xrd.Config(catalogue=served.url)
+    config = xrdml.Config(catalogue=served.url)
     with load("digits", cache=tmp_path, config=config) as data:
         assert len(data) == 18
     assert list(tmp_path.glob("*-digits.root"))
