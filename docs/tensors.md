@@ -87,7 +87,7 @@ the way it would read events. If there is no storage element to hand, share the
 directory over `root://` yourself — an unprivileged port, no login, no daemon:
 
 ```console
-$ python -m xrd.testing datasets --port 21094 --pattern '*.root'
+$ python -m xrdclient.testing datasets --port 21094 --pattern '*.root'
 serving 5 files on root://127.0.0.1:21094/ with no login
 ```
 

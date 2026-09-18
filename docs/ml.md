@@ -14,7 +14,7 @@ for images, labels in data.train.batches(256):
 Nothing was downloaded. Every minibatch is a read of one basket out of the
 file wherever it lives, so a file larger than the machine trains the same way
 a small one does, and the URL can be a storage element, an HTTPS server, an S3
-bucket or a path — see [the client's files and paths](https://github.com/rob-c/xrd/blob/main/docs/files.md) for what a URL may be.
+bucket or a path — see [the client's files and paths](https://github.com/rob-c/xrdclient/blob/main/docs/files.md) for what a URL may be.
 
 `xrdml` is the friendly face of [`xrdml.tensors`](tensors.md),
 which is where the tensors are actually made. Everything on this page can be

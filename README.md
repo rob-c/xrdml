@@ -28,7 +28,7 @@ of the file wherever it lives.
 
 That brings [`xrdroot`](https://github.com/rob-c/xrdroot) — the ROOT file
 format in pure Python — and
-[`pyxrootdclient`](https://github.com/rob-c/xrd) underneath it, which is
+[`xrdclient`](https://github.com/rob-c/xrdclient) underneath it, which is
 where `root://`, `https://`, HEP WebDAV and `s3://` come from.
 
 PyTorch and TensorFlow are **not** dependencies. Neither is imported until a
@@ -77,12 +77,12 @@ The catalogue is the `index.json` that an
 `xrdml.Config(catalogue=None)` turns bare-name lookup off entirely.
 
 Those two settings — `catalogue` and `cache_dir` — live on `xrdml.Config`,
-which is `xrd.Config` with them added, so everything about connecting, copying
+which is `xrdclient.Config` with them added, so everything about connecting, copying
 and timing out is set in the same object and means what it means in the client.
 
 ## Where this sits
 
-    xrd          the XRootD protocol, files, copies, auth       (pyxrootdclient)
+    xrdclient    the XRootD protocol, files, copies, authentication
       └─ xrdroot        the ROOT file format
            └─ xrdml     this package: trees to tensors, a URL to a training loop
                 └─ xrddatasets   open data converted to ROOT, and the site that serves it

@@ -14,8 +14,8 @@ fed. Two things arrive from outside, and both are treated as untrusted: the
 ROOT file, whose parsing belongs to
 [xrdroot](https://github.com/rob-c/xrdroot), and the catalogue, which is a
 JSON index on a web server. Credentials, TLS and the transport are
-[PyXRootDClient](https://github.com/rob-c/xrd)'s, and its
-[SECURITY.md](https://github.com/rob-c/xrd/blob/main/SECURITY.md) is the
+[xrdclient](https://github.com/rob-c/xrdclient)'s, and its
+[SECURITY.md](https://github.com/rob-c/xrdclient/blob/main/SECURITY.md) is the
 document for those.
 
 ## What the implementation guarantees

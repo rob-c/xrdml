@@ -19,7 +19,7 @@ first. Start with [Machine learning](ml.md) for the whole of that surface,
 
 | Package | What it is |
 | --- | --- |
-| [`pyxrootdclient`](https://github.com/rob-c/xrd) | the XRootD protocol, files, copies, authentication |
+| [`xrdclient`](https://github.com/rob-c/xrdclient) | the XRootD protocol, files, copies, authentication |
 | [`xrdroot`](https://github.com/rob-c/xrdroot) | the ROOT file format |
 | `xrdml` | this package: trees to tensors, a URL to a training loop |
 | [`xrddatasets`](https://github.com/rob-c/xrddatasets) | open data converted to ROOT, and the site that serves it |

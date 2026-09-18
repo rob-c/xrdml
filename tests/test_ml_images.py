@@ -188,7 +188,7 @@ def test_optional_array_and_plotting_dependencies_fail_with_install_help(
         image.to_numpy()
     monkeypatch.setitem(sys.modules, "matplotlib", None)
     monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
-    with pytest.raises(UnsupportedFeatureError, match=r"pyxrootdclient\[plot\].*matrices"):
+    with pytest.raises(UnsupportedFeatureError, match=r"xrdclient\[plot\].*matrices"):
         image.plot()
 
 

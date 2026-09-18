@@ -16,7 +16,7 @@ import pytest
 
 #: The packages these programs are documentation for: this one, the ROOT
 #: reader under it and the client under that.
-LIBRARY = {"xrdml", "xrdroot", "xrd"}
+LIBRARY = {"xrdml", "xrdroot", "xrdclient"}
 
 REPO = pathlib.Path(__file__).parent.parent
 EXAMPLES = sorted((REPO / "examples").glob("*.py"))

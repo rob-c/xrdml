@@ -42,9 +42,9 @@ from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union, cast
 
-from xrd._compat import SLOTS
-from xrd.config import Config as _ClientConfig
-from xrd.url import parse
+from xrdclient._compat import SLOTS
+from xrdclient.config import Config as _ClientConfig
+from xrdclient.url import parse
 from xrdroot import open_root
 from xrdroot.errors import UnsupportedFeatureError
 from xrdroot.interp import Numeric
@@ -65,7 +65,7 @@ DEFAULT_CATALOGUE = "http://ai.edi.scotgrid.ac.uk"
 
 @dataclasses.dataclass(frozen=True, **SLOTS)
 class Config(_ClientConfig):
-    """:class:`xrd.Config`, and the two settings this package adds to it.
+    """:class:`xrdclient.Config`, and the two settings this package adds to it.
 
     Everything about connecting, copying and timing out is inherited and means
     what it means there. What is here is where a bare name is looked up and
@@ -102,7 +102,7 @@ _MISSING = object()
 def _catalogue_of(settings: object) -> str | None:
     """Where ``settings`` says to look a bare name up.
 
-    A :class:`Config` carries the answer. A plain :class:`xrd.Config` - which
+    A :class:`Config` carries the answer. A plain :class:`xrdclient.Config` - which
     is what a caller who only ever needed transport settings will pass - has
     no opinion, so the environment and the default answer for it.
     """
@@ -303,7 +303,7 @@ class Image2D:
         figure, or omit it to create one. The returned ``(figure, axes)`` can
         be further styled or displayed. ``title=""`` suppresses the automatic
         dataset title. Install the optional dependency with
-        ``pip install pyxrootdclient[plot]``.
+        ``pip install xrdclient[plot]``.
         """
         pyplot = _pyplot()
         figure, selected = _image_axes(pyplot, axes)
@@ -715,7 +715,7 @@ def _pyplot() -> Any:
     except ImportError:
         raise UnsupportedFeatureError(
             "visualizing a 2D dataset needs matplotlib, which is not installed: "
-            "pip install pyxrootdclient[plot]; the raw and normalized Python "
+            "pip install xrdclient[plot]; the raw and normalized Python "
             "matrices remain available without it"
         ) from None
     return pyplot
@@ -916,7 +916,7 @@ def _read_whole(url: str, config: _ClientConfig | None) -> bytes:
     is a URL on a web server or a path on a shared filesystem without this
     having to care which.
     """
-    from xrd import read_bytes
+    from xrdclient import read_bytes
 
     target = parse(url)
     if target.is_local:
@@ -1023,7 +1023,7 @@ def download(
         return target
     where.mkdir(parents=True, exist_ok=True)
     part = target.with_name(target.name + ".part")
-    from xrd.copy import copy
+    from xrdclient.copy import copy
 
     copy(source, str(part), config=settings)
     try:
@@ -1067,7 +1067,7 @@ def _agrees(part: Path, entry: dict[str, Any], source: str) -> None:
             f"{entry['bytes']}"
         )
     if "adler32" in entry:
-        from xrd.crypto import checksum_file
+        from xrdclient.crypto import checksum_file
 
         with part.open("rb") as handle:
             got = checksum_file("adler32", iter(lambda: handle.read(1 << 20), b""))

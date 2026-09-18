@@ -6,7 +6,7 @@ Everything else - which trees are the training rows, which column is the
 picture and which the answer, how much to hold at once, what to divide the
 bytes by - is read off the file by :mod:`xrdml` and can be printed.
 
-    $ python -m xrd.testing datasets --port 21094 --pattern 'mnist.root'
+    $ python -m xrdclient.testing datasets --port 21094 --pattern 'mnist.root'
     $ python examples/mnist_easy.py root://127.0.0.1:21094//mnist.root
 
 ``mnist_mlp.py`` is this same program written against :mod:`xrdml.tensors`, one

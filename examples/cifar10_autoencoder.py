@@ -4,7 +4,7 @@ The file is 169 MB and every epoch reads the whole of it, in baskets. The line
 at the end says how much of it was in this process at the widest moment: a
 pool of rows, which would be the same figure for a terabyte.
 
-    $ python -m xrd.testing datasets --port 21094 --pattern 'cifar10.root'
+    $ python -m xrdclient.testing datasets --port 21094 --pattern 'cifar10.root'
     $ python examples/cifar10_autoencoder.py root://127.0.0.1:21094//cifar10.root
 """
 
@@ -14,7 +14,7 @@ import time
 import tracemalloc
 
 import torch
-import xrd
+import xrdclient
 from torch import nn
 from torch.utils.data import DataLoader
 from xrdroot import open_root
@@ -44,7 +44,7 @@ with open_root(URL) as handle:
         nn.Linear(3072, 512), nn.ReLU(), nn.Linear(512, CODE),
         nn.Linear(CODE, 512), nn.ReLU(), nn.Linear(512, 3072), nn.Sigmoid()).to(device)
     optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
-    megabytes = xrd.Path(URL).stat().st_size / 1e6
+    megabytes = xrdclient.Path(URL).stat().st_size / 1e6
     print(f"{URL}: {megabytes:,.0f} MB, {len(trees['train_'])} classes, "
           f"{len(loaders['train_']):,} minibatches an epoch, on {device}")
 

@@ -41,7 +41,7 @@ server, an S3 bucket, a path on the machine. With none of those to hand, share
 the directory yourself on a port you can bind, with no login and no daemon:
 
 ```console
-$ python -m xrd.testing datasets --port 21094 --pattern 'cifar10.root'
+$ python -m xrdclient.testing datasets --port 21094 --pattern 'cifar10.root'
 serving 1 files on root://127.0.0.1:21094/ with no login
   root://127.0.0.1:21094//home/you/datasets/cifar10.root  169,068,241 bytes
   root://127.0.0.1:21094//cifar10.root  169,068,241 bytes
@@ -49,7 +49,7 @@ serving 1 files on root://127.0.0.1:21094/ with no login
 
 That server authorises everyone and reads its files into memory, which is fine
 for a demonstration on loopback and wrong for anything else; see
-[the client's testing server](https://github.com/rob-c/xrd/blob/main/docs/testing.md#sharing-a-directory-over-root) before pointing it at a
+[the client's testing server](https://github.com/rob-c/xrdclient/blob/main/docs/testing.md#sharing-a-directory-over-root) before pointing it at a
 network.
 
 ## Inspecting a JARVIS crystal projection

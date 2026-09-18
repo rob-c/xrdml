@@ -5,7 +5,7 @@ one basket out of the file on the server. The line at the end says how much of
 the file was in this process at the widest moment, counted by ``tracemalloc``,
 which sees the reading but not PyTorch's own arenas.
 
-    $ python -m xrd.testing datasets --port 21094 --pattern 'mnist.root'
+    $ python -m xrdclient.testing datasets --port 21094 --pattern 'mnist.root'
     $ python examples/mnist_mlp.py root://127.0.0.1:21094//mnist.root
 """
 
@@ -15,7 +15,7 @@ import time
 import tracemalloc
 
 import torch
-import xrd
+import xrdclient
 from torch import nn
 from torch.utils.data import DataLoader
 from xrdroot import open_root
@@ -44,7 +44,7 @@ with open_root(URL) as handle:
 
     model = nn.Sequential(nn.Linear(784, 128), nn.ReLU(), nn.Linear(128, 10)).to(device)
     optimiser = torch.optim.Adam(model.parameters(), lr=1e-3)
-    megabytes = xrd.Path(URL).stat().st_size / 1e6
+    megabytes = xrdclient.Path(URL).stat().st_size / 1e6
     print(f"{URL}: {megabytes:,.0f} MB, {len(train):,} minibatches an epoch, on {device}")
 
     # From here on the only thing growing the heap is the reading, so what the

@@ -557,7 +557,7 @@ def test_the_catalogue_can_come_from_the_environment(catalogue, monkeypatch):
 
 
 def test_a_catalogue_is_read_over_http(digits):
-    from xrd.testing import FakeDAVServer
+    from xrdclient.testing import FakeDAVServer
 
     index = json.dumps({"format": 1, "datasets": [{"name": "digits", "file": "digits.root"}]})
     files = {"/d/index.json": index.encode(), "/d/digits.root": pathlib.Path(digits).read_bytes()}
@@ -595,8 +595,8 @@ def test_a_file_that_exists_is_never_shadowed_by_the_catalogue(digits, monkeypat
 @pytest.fixture
 def served(digits):
     """A one-dataset catalogue over HTTP, with the index a build would write."""
-    from xrd.crypto import checksum_file
-    from xrd.testing import FakeDAVServer
+    from xrdclient.crypto import checksum_file
+    from xrdclient.testing import FakeDAVServer
 
     raw = pathlib.Path(digits).read_bytes()
     entry = {
@@ -663,9 +663,9 @@ def test_a_second_pull_of_what_is_there_transfers_nothing(served, tmp_path, monk
     def refuse(*args, **options):
         raise AssertionError("the cached copy should have been enough")
 
-    # ``xrd.copy`` the name is the function; the module it shadows is the one
+    # ``xrdclient.copy`` the name is the function; the module it shadows is the one
     # ``download`` imports from, so that is the one to take the copy out of.
-    monkeypatch.setattr(sys.modules["xrd.copy"], "copy", refuse)
+    monkeypatch.setattr(sys.modules["xrdclient.copy"], "copy", refuse)
     assert download("digits", into=tmp_path, config=config).read_bytes() == served.raw
 
 

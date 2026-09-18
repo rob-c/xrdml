@@ -23,7 +23,7 @@ import sys
 from collections.abc import Iterator, Sequence
 from typing import TYPE_CHECKING, Any
 
-from xrd._compat import zip_strict
+from xrdclient._compat import zip_strict
 from xrdroot.errors import UnsupportedFeatureError
 from xrdroot.interp import Numeric
 from xrdroot.tree import DEFAULT_STEP, Jagged
